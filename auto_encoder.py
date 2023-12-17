@@ -2,7 +2,7 @@ import os
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
 import datetime
 
 # Set Paths
@@ -97,12 +97,19 @@ model_checkpoint_callback = ModelCheckpoint(
     save_best_only=True
 )
 
+# Initialise the EarlyStopping callback
+early_stopping_callback = EarlyStopping(
+    monitor='val_loss',  # Monitor the validation loss
+    patience=10,          # Number of epochs with no improvement after which training will be stopped
+    restore_best_weights=True  # Whether to restore model weights from the epoch with the best value of the monitored quantity
+)
+
 # Train the autoencoder
 history = autoencoder.fit(
     train_generator,
     epochs=50,  # You can start with a lower number of epochs and increase as needed
     validation_data=validation_generator,
-    callbacks=[tensorboard_callback, model_checkpoint_callback]
+    callbacks=[tensorboard_callback, model_checkpoint_callback, early_stopping_callback]
 )
 
 # After training the model, save it to a file 
